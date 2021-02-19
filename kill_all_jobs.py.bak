@@ -1,0 +1,23 @@
+#!/usr/local/bin/python3
+
+import sys
+import requests
+
+
+all_jobs = requests.get('https://ci.spb.yadro.com/api/json?tree=jobs[name]').json()
+
+
+def main():
+    for i in all_jobs['jobs']:
+        all_builds = requests.get("https://ci.spb.yadro.com/job/{}/api/json?tree=builds[id,building]"
+                                  .format(i['name'])).json()
+        try:
+            for b in all_builds['builds']:
+                if b['building']:
+                    print("https://ci.spb.yadro.com/job/{}/{}".format(i['name'], b['id']))
+        except Exception as e:
+            pass
+
+
+if __name__ == '__main__':
+    sys.exit(main())

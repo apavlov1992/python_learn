@@ -23,17 +23,21 @@ class Walk:
 
 
 #переписать на итератор с использованием функции yield
-    def walk_directory(self, dir_to_check, output_file):
+    def walk_directory(self, dir_to_check, output_file, blocksize: int = 4096):
         for root, directories, files in os.walk(dir_to_check, topdown=False):
             for name in files:
                 hasher_fn = hashlib.md5()
-                with open((os.path.join(root, name)), 'r') as afile:
-                    buf = afile.read()
-                    hasher_fn.update(buf.encode('utf-8'))
-                files_md5sum = {os.path.join(root, name): hasher_fn.hexdigest()}
-                Walk.list_of_files.append(files_md5sum)
-            with open(output_file, 'w') as f:
-                f.write(json.dumps(Walk.list_of_files, indent=2, sort_keys=True))
+                with open((os.path.join(root, name)), 'rb') as afile:
+                    try:
+                        buf = afile.read(blocksize)
+                        hasher_fn.update(buf)
+                        files_md5sum = {os.path.join(root, name): hasher_fn.hexdigest()}
+                        Walk.list_of_files.append(files_md5sum)
+                    except KeyError:
+                        print('Error: {} '.format(KeyError))
+                    finally:
+                        with open(output_file, 'w') as f:
+                            f.write(json.dumps(Walk.list_of_files, indent=2, sort_keys=True))
 
 #проверить, как считается md5 у бинарных файлов
 #до и после модуль timeit - измерять время работы скрипта для режима check ( сгенерить 1000 файлов ) суммарное время и среднее за 10к прогонов
@@ -42,24 +46,41 @@ class Walk:
 #задефайнить коды возврата
 BAD_ARGUMENTS_ERROR = 1
 
-d = dir_check_class.Walk
+
 
 #убрать в main
-parser = argparse.ArgumentParser()
-parser.add_argument('-c', '--check', action='store_true',
-                    help="Check previously file for diff")
-#добавить больше директорий
-parser.add_argument('-d', '--directory', nargs=1, type=str,
-                    help="Recursive check md5sum file and write to file")
-args = parser.parse_args()
+# parser = argparse.ArgumentParser()
+# parser.add_argument('-c', '--check', action='store_true',
+#                     help="Check previously file for diff")
+# #добавить больше директорий
+# parser.add_argument('-d', '--directory', nargs=1, type=str,
+#                     help="Recursive check md5sum file and write to file")
+# args = parser.parse_args()
 #убрать -d из аргументов
 #ключ для вывода в консоль stdout
 #ключ quiet (или silent), который убирает весь оутпут
 
-def __main__():
-    if len(sys.argv) in range(2, 3):
+def __main__(args=None):
+    if args is None:
+        args = sys.argv[1:]
+
+    d = Walk
+    # print(args)
+    if len(args) not in range(2, 3):
         d.print_usage()
         return BAD_ARGUMENTS_ERROR
+
+    # убрать в main
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-c', '--check', action='store_true',
+                        help="Check previously file for diff")
+    # добавить больше директорий
+    parser.add_argument('-d', '--directory', nargs=1, type=str,
+                        help="Recursive check md5sum file and write to file")
+    args = parser.parse_args(args)
+    # убрать -d из аргументов
+    # ключ для вывода в консоль stdout
+    # ключ quiet (или silent), который убирает весь оутпут
 
     if args.check:
         try:

@@ -1,0 +1,9 @@
+/test/
+/test123/
+.idea/.gitignore
+.idea/inspectionProfiles/
+.idea/misc.xml
+.idea/modules.xml
+.idea/python_learn.iml
+.idea/vcs.xml
+__pycache__/
