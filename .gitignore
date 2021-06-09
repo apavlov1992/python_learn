@@ -1,9 +1,10 @@
-/test/
-/test123/
+/test/*
+/test123/*
 .idea/.gitignore
 .idea/inspectionProfiles/
 .idea/misc.xml
 .idea/modules.xml
 .idea/python_learn.iml
 .idea/vcs.xml
+output_without_check
 __pycache__/
