@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""This script purpose for check was is changes file in the directory or not."""
+"""This script check changes in file."""
 
 import sys
 import argparse
